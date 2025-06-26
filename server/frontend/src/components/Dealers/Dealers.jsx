@@ -15,16 +15,20 @@ const Dealers = () => {
   let dealer_url_by_state = "/djangoapp/get_dealers/";
  
   const filterDealers = async (state) => {
-    dealer_url_by_state = dealer_url_by_state+state;
-    const res = await fetch(dealer_url_by_state, {
-      method: "GET"
-    });
-    const retobj = await res.json();
-    if(retobj.status === 200) {
-      let state_dealers = Array.from(retobj.dealers)
-      setDealersList(state_dealers)
-    }
+  if (state === "All") {
+    get_dealers(); // Reload all
+    return;
   }
+
+  const url = `/djangoapp/get_dealers/${state}`;
+  const res = await fetch(url, { method: "GET" });
+  const retobj = await res.json();
+  if (retobj.status === 200) {
+    let state_dealers = Array.from(retobj.dealers);
+    setDealersList(state_dealers);
+  }
+};
+
 
   const get_dealers = async ()=>{
     const res = await fetch(dealer_url, {
@@ -60,13 +64,19 @@ return(
       <th>Address</th>
       <th>Zip</th>
       <th>
-      <select name="state" id="state" onChange={(e) => filterDealers(e.target.value)}>
-      <option value="" selected disabled hidden>State</option>
-      <option value="All">All States</option>
-      {states.map(state => (
-          <option value={state}>{state}</option>
-      ))}
-      </select>        
+      <select
+  name="state"
+  id="state"
+  onChange={(e) => filterDealers(e.target.value)}
+  defaultValue=""
+>
+  <option value="" disabled hidden>State</option>
+  <option value="All">All States</option>
+  {states.map((state, idx) => (
+    <option key={idx} value={state}>{state}</option>
+  ))}
+</select>
+      
 
       </th>
       {isLoggedIn ? (
@@ -74,21 +84,25 @@ return(
          ):<></>
       }
       </tr>
-     {dealersList.map(dealer => (
-        <tr>
-          <td>{dealer['id']}</td>
-          <td><a href={'/dealer/'+dealer['id']}>{dealer['full_name']}</a></td>
-          <td>{dealer['city']}</td>
-          <td>{dealer['address']}</td>
-          <td>{dealer['zip']}</td>
-          <td>{dealer['state']}</td>
-          {isLoggedIn ? (
-            <td><a href={`/postreview/${dealer['id']}`}><img src={review_icon} className="review_icon" alt="Post Review"/></a></td>
-           ):<></>
-          }
-        </tr>
-      ))}
-     </table>;
+{dealersList.map((dealer) => (
+  <tr key={dealer.id}>
+    <td>{dealer.id}</td>
+    <td><a href={`/dealer/${dealer.id}`}>{dealer.full_name}</a></td>
+    <td>{dealer.city}</td>
+    <td>{dealer.address}</td>
+    <td>{dealer.zip}</td>
+    <td>{dealer.state}</td>
+    {isLoggedIn && (
+      <td>
+        <a href={`/postreview/${dealer.id}`}>
+          <img src={review_icon} className="review_icon" alt="Post Review"/>
+        </a>
+      </td>
+    )}
+  </tr>
+))}
+
+     </table>
   </div>
 )
 }

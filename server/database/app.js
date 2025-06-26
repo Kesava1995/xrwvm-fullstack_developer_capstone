@@ -49,12 +49,13 @@ app.get('/fetchReviews', async (req, res) => {
 // Express route to fetch reviews by a particular dealer
 app.get('/fetchReviews/dealer/:id', async (req, res) => {
   try {
-    const documents = await Reviews.find({id: req.params.id});
+    const documents = await Reviews.find({ id: req.params.id });
     res.json(documents);
   } catch (error) {
     res.status(500).json({ error: 'Error fetching documents' });
   }
 });
+
 
 // Express route to fetch all dealerships
 app.get('/fetchDealers', async (req, res) => {
@@ -111,7 +112,7 @@ app.post('/insert_review', express.raw({ type: '*/*' }), async (req, res) => {
     const savedReview = await review.save();
     res.json(savedReview);
   } catch (error) {
-		console.log(error);
+		console.error("Insert Review Error:", error); 
     res.status(500).json({ error: 'Error inserting review' });
   }
 });
